@@ -6,7 +6,14 @@ const mongoose = require('mongoose');
  */
 const connectDB = async () => {
   try {
-    let mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/book_doctor';
+    let mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/book_doctor';
+    
+    // Sanitize any accidental copy-paste prefixes or quotes
+    mongoUri = mongoUri.trim();
+    mongoUri = mongoUri.replace(/^MONGO_URI\s*=\s*/i, '');
+    mongoUri = mongoUri.replace(/^MONGODB_URI\s*=\s*/i, '');
+    mongoUri = mongoUri.replace(/^["']|["']$/g, '');
+
     if (!mongoUri.includes('retryWrites=')) {
       mongoUri += mongoUri.includes('?') ? '&retryWrites=false' : '?retryWrites=false';
     }
