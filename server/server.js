@@ -11,7 +11,13 @@ const app = express();
 connectDB();
 
 // Global Middlewares
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    process.env.CLIENT_URL
+  ].filter(Boolean),
+  credentials: true
+}));
 app.use(express.json());
 
 // Serve uploads folder statically (prepares directories for file upload middleware later)
