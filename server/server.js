@@ -11,11 +11,29 @@ const app = express();
 connectDB();
 
 // Global Middlewares
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.CLIENT_URL
+].filter(Boolean).map(url => url.trim().replace(/\/$/, ""));
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    process.env.CLIENT_URL
-  ].filter(Boolean),
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    const normalizedOrigin = origin.trim().replace(/\/$/, "");
+    
+    // Check if origin is allowed
+    const isAllowed = allowedOrigins.includes(normalizedOrigin) || 
+                      normalizedOrigin.endsWith("vercel.app") || 
+                      normalizedOrigin.includes("localhost") ||
+                      normalizedOrigin.includes("127.0.0.1");
+                      
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
